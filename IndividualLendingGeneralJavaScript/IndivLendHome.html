@@ -3969,6 +3969,19 @@ $(document).ready(function() {
 			<span class="rowvalue">{{=$ctx.moneyFormatted(currency, principal)}}</span>
 		</div>
 		
+		<div class="row">
+			<p><b>{{=$ctx.doI18N("heading.group.members.overview")}}</b></p>
+			<table>
+			{{#each loanMembers}}
+				<tr>
+					<td>{{=clientName}}</td>
+					<td>&nbsp;&#45;&nbsp;<a href="unknown.html" onclick="showILLoan({{=id}}, '{{=loanProductName}}', false);return false ;" >{{=loanProductName}}: &#35;{{=id}}</a></td>
+					<td>&nbsp;&#45;&nbsp;({{=$ctx.doI18N(status.code)}} ({{=$ctx.doI18N("label.client.account.loan.status.since")}} {{=$ctx.globalDate(lifeCycleStatusDate)}})</td>
+				</tr>
+			{{/each}}
+			</table>
+		</div>
+
 		<br/>
 	</div>
 
