@@ -2214,11 +2214,11 @@ function showILGroup(groupId){
 		' };'
 	}
 
-	function genSaveSuccessFunctionReloadLoan(loanId) {
+	function genSaveSuccessFunctionReloadLoan(loanId, isGroupLoan) {
 
 		return 'var saveSuccessFunctionReloadLoan = function(data, textStatus, jqXHR) { ' + 
 						  	' $("#dialog-form").dialog("close");' +
-							' loadILLoan(' + loanId + ');' +
+							' loadILLoan(' + loanId + ', isGroupLoan);' +
 							' clientDirty = true;' +
 							' groupDirty = true;' +
 						'};';
@@ -3055,8 +3055,10 @@ function loadILLoan(loanId, isGroupLoan) {
 
 	        		var tableHtml = $("#loanDataTabTemplate").render(data);
 	        		
+	        		var groupLoanId;
 	        		if (isGroupLoan) {
 	        			tableHtml = $("#groupLoanDataTabTemplate").render(data);
+	        			groupLoanId = loanId;
 	        		}
 
 	        		var currentTab = $("#newtabs").children(".ui-tabs-panel").not(".ui-tabs-hide");
@@ -3128,7 +3130,12 @@ function loadILLoan(loanId, isGroupLoan) {
 						var width = 500; 
 						var height = 350;
 						var defaultOffset = offsetToSubmittedDate;
-						eval(genSaveSuccessFunctionReloadLoan(loanId));
+						if (isGroupLoan) {
+							eval(genSaveSuccessFunctionReloadLoan(groupLoanId));	
+						} else {
+							eval(genSaveSuccessFunctionReloadLoan(loanId));
+						}
+						
 						popupDialogWithPostOnlyFormView(postUrl, 'POST', 'dialog.title.approve.loan', templateSelector, width, height, saveSuccessFunctionReloadLoan,  offsetToSubmittedDate, defaultOffset, maxOffset)
 					    e.preventDefault();
 				});
@@ -3154,8 +3161,14 @@ function loadILLoan(loanId, isGroupLoan) {
 						var url = 'loans/' + loanId;
 						var width = 400; 
 						var height = 225;
-												
-						popupConfirmationDialogAndPost(url, 'DELETE', 'dialog.title.confirmation.required', width, height, 0, saveSuccessFunctionReloadClient);
+						
+						if (isGroupLoan){
+							eval(genSaveSuccessFunctionReloadLoan(groupLoanId, isGroupLoan));
+							popupConfirmationDialogAndPost(url, 'DELETE', 'dialog.title.confirmation.required', width, height, 0, saveSuccessFunctionReloadLoan);
+						} else {	
+							eval(genSaveSuccessFunctionReloadLoan(loanId, isGroupLoan));		
+							popupConfirmationDialogAndPost(url, 'DELETE', 'dialog.title.confirmation.required', width, height, 0, saveSuccessFunctionReloadClient);
+					    }
 					    e.preventDefault();
 				});
 				$('button.deleteloan span').text(doI18N('dialog.button.delete.loan'));
@@ -3169,7 +3182,11 @@ function loadILLoan(loanId, isGroupLoan) {
 						var width = 500; 
 						var height = 350;
 						var defaultOffset = offsetToApprovalDate;
-						eval(genSaveSuccessFunctionReloadLoan(loanId));
+						if (isGroupLoan) {
+							eval(genSaveSuccessFunctionReloadLoan(groupLoanId));	
+						} else {
+							eval(genSaveSuccessFunctionReloadLoan(loanId));
+						}
 						popupDialogWithPostOnlyFormView(postUrl, 'POST', 'dialog.title.disburse.loan', templateSelector, width, height, saveSuccessFunctionReloadLoan,  offsetToSubmittedDate, defaultOffset, maxOffset)
 					    e.preventDefault();
 				});
@@ -3198,11 +3215,19 @@ function loadILLoan(loanId, isGroupLoan) {
 						var postUrl = 'loans/' + loanId + '/transactions?command=repayment';
 						
 						var templateSelector = "#transactionLoanFormTemplate";
+						if (isGroupLoan){
+							templateSelector = "#groupTransactionLoanFormTemplate";
+							getUrl = 'grouploans/' + groupLoanId + '/transactions/template?command=repayment';
+							postUrl = 'grouploans/' + groupLoanId + '/transactions?command=repayment';
+						}
 						var width = 500; 
 						var height = 350;
 						var defaultOffset = offsetToApprovalDate;
-						eval(genSaveSuccessFunctionReloadLoan(loanId));
-			
+						if (isGroupLoan) {
+							eval(genSaveSuccessFunctionReloadLoan(groupLoanId));	
+						} else {
+							eval(genSaveSuccessFunctionReloadLoan(loanId));
+						}
 						popupDialogWithFormView(getUrl, postUrl, 'POST', "dialog.title.loan.repayment", templateSelector, width, height,  saveSuccessFunctionReloadLoan);
 						//popupDialogWithFormView(getUrl, postUrl, 'POST', 'dialog.title.loan.repayment', templateSelector, width, height, currentTabIndex,  offsetToSubmittedDate, defaultOffset, maxOffset)
 					    e.preventDefault();

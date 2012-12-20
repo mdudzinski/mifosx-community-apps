@@ -3857,6 +3857,17 @@ $(document).ready(function() {
 </script>
 
 <script id="groupLoanDataTabTemplate" type="text/x-jquery-tmpl">
+<div id="loanactions">
+	<table width="100%">
+		<td align="center">
+			<span id="toolbar" class="ui-widget-header ui-corner-all">
+			{{#if $ctx.showTask("LOANREPAYMENT")}}
+			<button id="repaymentbtn{{=id}}" class="repaymentloan">Make Repayment</button>
+			{{/if}}
+			</span>
+		</td>
+	</table>
+</div>
 <div id="loantabs{{=id}}" class="loantabs">
 	<ul>
 		<li><a href="#details{{=id}}" title="details">{{=$ctx.doI18N("tab.client.account.loan.details")}}</a></li>
@@ -3976,7 +3987,22 @@ $(document).ready(function() {
 				<tr>
 					<td>{{=clientName}}</td>
 					<td>&nbsp;&#45;&nbsp;<a href="unknown.html" onclick="showILLoan({{=id}}, '{{=loanProductName}}', false);return false ;" >{{=loanProductName}}: &#35;{{=id}}</a></td>
-					<td>&nbsp;&#45;&nbsp;({{=$ctx.doI18N(status.code)}} ({{=$ctx.doI18N("label.client.account.loan.status.since")}} {{=$ctx.globalDate(lifeCycleStatusDate)}})</td>
+					<td>&nbsp;&#45;&nbsp;({{=$ctx.doI18N(status.code)}})</td>
+					<td>		
+					{{#if permissions.pendingApproval}}
+						{{#if $ctx.showTask("APPROVELOAN")}}
+						<button id="approvebtn{{=$parent.parent.data.id}}" class="approveloan">Approve</button>
+						{{/if}}
+						{{#if $ctx.showTask("DELETELOAN")}}
+						<button id="deletebtn{{=$parent.parent.data.id}}" class="deleteloan">Delete</button>
+						{{/if}}
+					{{/if}}
+					{{#if permissions.disbursalAllowed}}
+						{{#if $ctx.showTask("DISBURSELOAN")}}
+						<button id="disbursebtn{{=$parent.parent.data.id}}" class="disburseloan">Disburse</button>
+						{{/if}}
+					{{/if}}
+					</td>
 				</tr>
 			{{/each}}
 			</table>
@@ -4406,6 +4432,27 @@ $(document).ready(function() {
 
 	<label for="transactionAmount">{{=$ctx.doI18N("label.loan.transaction.amount")}}</label>
 	<input id="transactionAmount" name="transactionAmount" class="text ui-widget-content ui-corner-all" title="" value="{{=$ctx.monetaryValue(currency, amount)}}" />
+
+	<label for="note">{{=$ctx.doI18N("label.loan.action.note")}}</label>
+	<textarea rows="3" cols="53" id="note" name="note" class="text ui-widget-content ui-corner-all"></textarea>
+</form>
+</script>
+
+<script id="groupTransactionLoanFormTemplate" type="text/x-jquery-tmpl">
+<form id="entityform">
+    <div id="formerrors"></div>
+
+    {{#each membersTransactions}}
+		<label for="transactionAmount">{{=$ctx.doI18N("label.loan.transaction.amount")}} for {{=loanProductName}}: &#35;{{=loanId}}</label>
+		<input type="hidden" name="membersTransactions[{{=$itemNumber}}][loanId]" value="{{=loanId}}" />
+		<input type="hidden" id="locale" name="membersTransactions[{{=$itemNumber}}][locale]" value="{{=$ctx.currentLocale()}}" />
+		<input id="transactionAmount" name="membersTransactions[{{=$itemNumber}}][transactionAmount]" class="text ui-widget-content ui-corner-all" title="" value="{{=$ctx.monetaryValue(currency, amount)}}" />
+	{{/each}}
+	<input type="hidden" id="dateFormat" name="dateFormat" value="dd MMMM yyyy" />
+	<input type="hidden" id="locale" name="locale" value="{{=$ctx.currentLocale()}}" />
+
+	<label for="transactionDate">{{=$ctx.doI18N("label.loan.transaction.on")}}</label>
+	<input id="transactionDate" name="transactionDate" class="text ui-widget-content ui-corner-all datepickerfield" title=""d value="{{=$ctx.globalDate(date)}}"/>
 
 	<label for="note">{{=$ctx.doI18N("label.loan.action.note")}}</label>
 	<textarea rows="3" cols="53" id="note" name="note" class="text ui-widget-content ui-corner-all"></textarea>
